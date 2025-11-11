@@ -39,6 +39,7 @@ interface SourceInfo {
   name: string; // tagName
   path: string;
   line: number;
+  endLine: number;
   column: number;
 }
 
@@ -127,7 +128,7 @@ export class CodeInspectorComponent extends LitElement {
     },
   }; // 弹窗位置
   @state()
-  element = { name: '', line: 0, column: 0, path: '' }; // 选中节点信息
+  element = { name: '', line: 0, endLine: 0, column: 0, path: '' }; // 选中节点信息
   @state()
   elementTipStyle: ElementTipStyle = {
     vertical: '',
@@ -418,10 +419,11 @@ export class CodeInspectorComponent extends LitElement {
 
     const segments = paths.split(':');
     const name = segments[segments.length - 1];
-    const column = Number(segments[segments.length - 2]);
-    const line = Number(segments[segments.length - 3]);
-    const path = segments.slice(0, segments.length - 3).join(':');
-    return { name, path, line, column };
+    const endLine = Number(segments[segments.length - 2]);
+    const column = Number(segments[segments.length - 3]);
+    const line = Number(segments[segments.length - 4]);
+    const path = segments.slice(0, segments.length - 4).join(':');
+    return { name, path, line, column, endLine };
   };
 
   removeCover = (force?: boolean | MouseEvent) => {
@@ -499,7 +501,7 @@ export class CodeInspectorComponent extends LitElement {
 
   sendXHR = () => {
     const file = encodeURIComponent(this.element.path);
-    const url = `http://${this.ip}:${this.port}/?file=${file}&line=${this.element.line}&column=${this.element.column}`;
+    const url = `http://${this.ip}:${this.port}/?file=${file}&line=${this.element.line}&column=${this.element.column}&endLine=${this.element.endLine}`;
     const xhr = new XMLHttpRequest();
     xhr.open('GET', url, true);
     xhr.send();
@@ -512,7 +514,7 @@ export class CodeInspectorComponent extends LitElement {
   // 通过img方式发送请求，防止类似企业微信侧边栏等内置浏览器拦截逻辑
   sendImg = () => {
     const file = encodeURIComponent(this.element.path);
-    const url = `http://${this.ip}:${this.port}/?file=${file}&line=${this.element.line}&column=${this.element.column}`;
+    const url = `http://${this.ip}:${this.port}/?file=${file}&line=${this.element.line}&column=${this.element.column}&endLine=${this.element.endLine}`;
     const img = document.createElement('img');
     img.src = url;
   };

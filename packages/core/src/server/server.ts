@@ -1,7 +1,7 @@
 // 启动本地接口，访问时唤起vscode
 import http from 'http';
 import portFinder from 'portfinder';
-import { launchIDE } from 'launch-ide';
+// import { launchIDE } from 'launch-ide'; // Not needed - extension handles everything
 import { DefaultPort } from '../shared/constant';
 import { getIP, getProjectRecord, setProjectRecord, findPort } from '../shared';
 import type { PathType, CodeOptions, RecordInfo } from '../shared';
@@ -43,7 +43,7 @@ export function getRelativeOrAbsolutePath(
 export function createServer(
   callback: (port: number) => any,
   options?: CodeOptions,
-  record?: RecordInfo
+  _record?: RecordInfo // Prefixed with _ to suppress unused warning
 ) {
   const server = http.createServer((req: any, res: any) => {
     // 收到请求唤醒vscode
@@ -68,6 +68,7 @@ export function createServer(
     }
     const line = Number(params.get('line'));
     const column = Number(params.get('column'));
+    const endLine = Number(params.get('endLine') || line); // fallback to line if not provided
     res.writeHead(200, {
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': '*',
@@ -77,16 +78,51 @@ export function createServer(
     res.end('ok');
     // 调用 hooks
     options?.hooks?.afterInspectRequest?.(options, { file, line, column });
+
+    console.log(options?.editor)
+
+    // 🔥 CURSOR EXTENSION INTEGRATION - Send to VS Code extension for auto-paste
+    if (options?.editor === 'cursor') {
+      console.log('in cursor block')
+
+      const http = require('http');
+      const postData = JSON.stringify({
+        filePath: file,
+        line,
+        endLine
+      });
+
+      const extReq = http.request({
+        hostname: 'localhost',
+        port: 7777,
+        path: '/add-context',
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Content-Length': Buffer.byteLength(postData)
+        }
+      }, () => {
+        console.log('[code-inspector] ✅ Sent to Cursor extension');
+      });
+
+      extReq.on('error', () => {
+        // Silently fail if extension not running
+      });
+
+      extReq.write(postData);
+      extReq.end();
+    }
+
     // 打开 IDE
-    launchIDE({
-      file,
-      line,
-      column,
-      editor: options?.editor,
-      method: options?.openIn,
-      format: options?.pathFormat,
-      rootDir: record?.envDir,
-    });
+    // launchIDE({
+    //   file,
+    //   line,
+    //   column,
+    //   editor: options?.editor,
+    //   method: options?.openIn,
+    //   format: options?.pathFormat,
+    //   rootDir: record?.envDir,
+    // });
   });
 
   // 寻找可用接口

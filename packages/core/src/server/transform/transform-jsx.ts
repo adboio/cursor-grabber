@@ -43,13 +43,14 @@ export function transformJsx(content: string, filePath: string, escapeTags: Esca
           return;
         }
 
-        // 向 dom 上添加一个带有 filepath/row/column 的属性
+        // 向 dom 上添加一个带有 filepath/row/column/endLine 的属性
         const insertPosition =
           node.openingElement.end - (node.openingElement.selfClosing ? 2 : 1);
         const { line, column } = node.loc.start;
+        const endLine = node.loc.end.line;
         const addition = ` ${PathName}="${filePath}:${line}:${
           column + 1
-        }:${nodeName}"${node.openingElement.attributes.length ? ' ' : ''}`;
+        }:${endLine}:${nodeName}"${node.openingElement.attributes.length ? ' ' : ''}`;
 
         s.prependLeft(insertPosition, addition);
       }

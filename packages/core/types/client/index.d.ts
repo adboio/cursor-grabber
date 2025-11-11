@@ -11,6 +11,7 @@ interface SourceInfo {
     name: string;
     path: string;
     line: number;
+    endLine: number;
     column: number;
 }
 interface ElementTipStyle {
@@ -75,6 +76,7 @@ export declare class CodeInspectorComponent extends LitElement {
     element: {
         name: string;
         line: number;
+        endLine: number;
         column: number;
         path: string;
     };

@@ -1,8 +1,0 @@
-LICENSE.md
-pnpm-lock.yaml
-pnpm-workspace.yaml
-index.html
-
-dist/
-
-*.svg

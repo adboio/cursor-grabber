@@ -1,0 +1,52 @@
+{
+  "name": "cursor-grabber-extension",
+  "displayName": "Cursor Grabber",
+  "description": "Add elements to Cursor chat context by clicking them in the browser",
+  "version": "0.0.1",
+  "publisher": "cursor-grabber",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/adboio/cursor-grabber"
+  },
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": ["Other"],
+  "activationEvents": ["onStartupFinished"],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "cursor-grabber.toggleServer",
+        "title": "Cursor Grabber: Toggle Server"
+      }
+    ],
+    "configuration": {
+      "title": "Cursor Grabber",
+      "properties": {
+        "cursorGrabber.port": {
+          "type": "number",
+          "default": 7777,
+          "description": "Port for the local server that receives component clicks"
+        },
+        "cursorGrabber.autoStart": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically start the server when VS Code opens"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "package": "vsce package"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/vscode": "^1.80.0",
+    "typescript": "^5.0.0"
+  }
+}
